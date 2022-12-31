@@ -1,56 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import style from "../styles/inbox.module.css";
 import { List, Avatar, Typography, Modal, Button } from "antd";
+import { useDispatch, useSelector } from "react-redux";
 
 const { Text } = Typography;
-const emailsExemple = [
-  {
-    sender: {
-      name: "Alice",
-      profileImageUrl:
-        "https://cinepassion34.fr/wp-content/uploads/2021/11/Alice-Dufour-cinepassion34.jpg",
-    },
-    subject: "Bonjour",
-    excerpt: "Comment ça va ?",
-  },
-  {
-    sender: {
-      name: "Bob",
-      profileImageUrl:
-        "https://www.elite-hair.fr/176-large_default/bob-solaire-homme.jpg",
-    },
-    subject: "Demande de renseignements",
-    excerpt: "Avez-vous des disponibilités pour une réunion demain ?",
-  },
-  {
-    sender: {
-      name: "Charlie",
-      profileImageUrl:
-        "http://media.nrj.fr/raw/2020/11/charlie-puth-un-prodige-a-l-oreille-absolue-1605615010.jpg",
-    },
-    subject: "Invitation à une conférence",
-    excerpt:
-      "Je vous invite à une conférence sur les technologies de l'information la semaine prochaine",
-  },
-];
 
 export default function Inbox() {
+  const dispatch = useDispatch();
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [emails, setEmails] = useState(emailsExemple);
 
+  //Access the emails in the reducer
+  const emails = useSelector((state) => state.emails.value);
+
+  //Access the searchterms
+  const searchTerms = useSelector((state) => state.search.value);
+
+  //Delete the selected email from the reducer
   const deleteEmail = (email) => {
-    const updatedEmails = emails.filter((e) => e !== email);
-    setEmails(updatedEmails);
+    dispatch(deleteEmail(email));
     setSelectedEmail(null);
     setModalVisible(false);
   };
+  useEffect(() => {
+    console.log(searchTerms);
+  }, [searchTerms]);
 
+  //Open the selected email in a modal
   const handleEmailClick = (email) => {
     setSelectedEmail(email);
     setModalVisible(true);
   };
 
+  //Boolean to handle the closing and opening of the modal
   const onModalClose = () => {
     setModalVisible(false);
   };
@@ -74,9 +56,9 @@ export default function Inbox() {
   return (
     //Affiche les mails sous forme de list Ant Design qui permet une rapide mise en forme
     //de l'inbox
-    <>
+    <div className={style.inboxContainer}>
+      <h1>Boîte de réception</h1>
       <List
-        className={style.inboxContainer}
         dataSource={emails}
         renderItem={(email) => (
           <List.Item
@@ -98,6 +80,6 @@ export default function Inbox() {
           visible: modalVisible,
           onClose: onModalClose,
         })}
-    </>
+    </div>
   );
 }

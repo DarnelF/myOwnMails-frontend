@@ -1,21 +1,53 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addEmail } from "../reducer/emails";
 import style from "../styles/sender.module.css";
 
 export default function Sender() {
+  const dispatch = useDispatch();
+  //Sender's name
   const [sender, setSender] = useState("");
+  //Subject of the email
   const [subject, setSubject] = useState("");
+  //Profile picture url
   const [profileImgUrl, setProfileImgUrl] = useState("");
+  //Body of the email
   const [body, setBody] = useState("");
 
+  //The full email in an object form
+  const [emailToSend, setEmailToSend] = useState({});
+
+  //Charge a profile picture on the computer
   const handleProfileImgChange = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
+    if (file) {
+      const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setProfileImgUrl(reader.result);
+      reader.onloadend = () => {
+        setProfileImgUrl(reader.result);
+      };
+
+      reader.readAsDataURL(file);
+      console.log(profileImgUrl);
+    }
+  };
+
+  //Function that sends the email to the reducer when the form is submitted
+  const handleSendEmail = () => {
+    if (sender === "" || subject === "" || body === "") {
+      // Afficher un message d'erreur ou une alerte ici
+      return;
+    }
+
+    const emailToSend = {
+      sender: {
+        name: sender,
+        profileImageUrl: profileImgUrl,
+      },
+      subject: subject,
+      excerpt: body,
     };
-
-    reader.readAsDataURL(file);
+    dispatch(addEmail(emailToSend));
   };
 
   return (
@@ -53,7 +85,11 @@ export default function Sender() {
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
-        <button className={style.submitButton} type="submit">
+        <button
+          className={style.submitButton}
+          type="button"
+          onClick={() => handleSendEmail()}
+        >
           Envoyer
         </button>
       </form>
