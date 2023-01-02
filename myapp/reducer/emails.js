@@ -42,7 +42,14 @@ export const emailsSlice = createSlice({
       state.value.push(action.payload);
     },
     deleteEmail: (state, action) => {
-      state.value = state.value.filter((e) => e !== action.payload);
+      state.value = state.value.filter(
+        (email) =>
+          email.sender.name !== action.payload.sender.name ||
+          email.sender.profileImageUrl !==
+            action.payload.sender.profileImageUrl ||
+          email.subject !== action.payload.subject ||
+          email.excerpt !== action.payload.excerpt
+      );
     },
   },
 });

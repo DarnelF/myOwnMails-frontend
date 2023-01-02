@@ -1,21 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addEmail } from "../reducer/emails";
 import style from "../styles/sender.module.css";
 
 export default function Sender() {
+  // Import the useDispatch hook from react-redux to dispatch the addEmail action
   const dispatch = useDispatch();
-  //Sender's name
+  // Declare state variables for the sender's name, the subject of the email, the profile image URL, and the body of the email
   const [sender, setSender] = useState("");
-  //Subject of the email
   const [subject, setSubject] = useState("");
-  //Profile picture url
   const [profileImgUrl, setProfileImgUrl] = useState("");
-  //Body of the email
   const [body, setBody] = useState("");
 
-  //The full email in an object form
+  // Declare a state variable for the email object to be sent
   const [emailToSend, setEmailToSend] = useState({});
+
 
   //Charge a profile picture on the computer
   const handleProfileImgChange = (e) => {
@@ -35,7 +34,7 @@ export default function Sender() {
   //Function that sends the email to the reducer when the form is submitted
   const handleSendEmail = () => {
     if (sender === "" || subject === "" || body === "") {
-      // Afficher un message d'erreur ou une alerte ici
+
       return;
     }
 
@@ -47,8 +46,17 @@ export default function Sender() {
       subject: subject,
       excerpt: body,
     };
+     // Dispatch the addEmail action with the email object
     dispatch(addEmail(emailToSend));
   };
+  useEffect(() => {
+    return () => {
+      setSender("");
+      setSubject("");
+      setProfileImgUrl("");
+      setBody("");
+    };
+  }, []);
 
   return (
     <div className={style.senderContainer}>
@@ -62,6 +70,7 @@ export default function Sender() {
               id="profile-img"
               accept="image/*"
               onChange={handleProfileImgChange}
+              required
             />
           </label>
           <input
@@ -70,6 +79,7 @@ export default function Sender() {
             placeholder="Nom de l'émetteur"
             value={sender}
             onChange={(e) => setSender(e.target.value)}
+            required
           />
         </div>
         <input
@@ -78,6 +88,7 @@ export default function Sender() {
           placeholder="Objet du courrier électronique"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
+          required
         />
         <textarea
           className={style.mailContent}

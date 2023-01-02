@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import style from "../styles/inbox.module.css";
 import { List, Avatar, Typography, Modal, Button } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+import { deleteEmail } from "../reducer/emails";
 
 const { Text } = Typography;
 
@@ -16,15 +17,35 @@ export default function Inbox() {
   //Access the searchterms
   const searchTerms = useSelector((state) => state.search.value);
 
+  const [filteredEmails, setFilteredEmails] = useState(
+    emails.filter((email) => {
+      return (
+        email.sender.name.includes(searchTerms) ||
+        email.subject.includes(searchTerms) ||
+        email.excerpt.includes(searchTerms)
+      );
+    })
+  );
+
+  // Use the useEffect hook to update the filteredEmails state after the deleteEmail action is dispatched
+  useEffect(() => {
+    // Refilter emails and update filteredEmails state
+    const updatedFilteredEmails = emails.filter((email) => {
+      return (
+        email.sender.name.includes(searchTerms) ||
+        email.subject.includes(searchTerms) ||
+        email.excerpt.includes(searchTerms)
+      );
+    });
+    setFilteredEmails(updatedFilteredEmails);
+  }, [emails, searchTerms]);
+
   //Delete the selected email from the reducer
-  const deleteEmail = (email) => {
+  const deleteEmailItem = (email) => {
     dispatch(deleteEmail(email));
     setSelectedEmail(null);
     setModalVisible(false);
   };
-  useEffect(() => {
-    console.log(searchTerms);
-  }, [searchTerms]);
 
   //Open the selected email in a modal
   const handleEmailClick = (email) => {
@@ -43,7 +64,9 @@ export default function Inbox() {
         title={email.subject}
         visible={visible}
         onCancel={onClose}
-        footer={<Button onClick={() => deleteEmail(email)}>Supprimer</Button>}
+        footer={
+          <Button onClick={() => deleteEmailItem(email)}>Supprimer</Button>
+        }
         width={600}
       >
         <p>De : {email.sender.name}</p>
@@ -54,12 +77,10 @@ export default function Inbox() {
   };
 
   return (
-    //Affiche les mails sous forme de list Ant Design qui permet une rapide mise en forme
-    //de l'inbox
     <div className={style.inboxContainer}>
       <h1>Boîte de réception</h1>
       <List
-        dataSource={emails}
+        dataSource={filteredEmails}
         renderItem={(email) => (
           <List.Item
             onClick={() => handleEmailClick(email)}
